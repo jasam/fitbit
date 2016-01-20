@@ -1,0 +1,7 @@
+name: Publish Document
+account: rpubs
+server: rpubs.com
+bundleId:
+        https://api.rpubs.com/api/v1/document/101421/f99f42f758c8403787e7010d5419c916
+url: http://rpubs.com/jasam/101421
+when: 1439940075.38727

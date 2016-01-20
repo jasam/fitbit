@@ -1,0 +1,83 @@
+---
+title: "Analysis activity from Fitbit"
+author: "Javier Rey"
+date: "18 de agosto de 2015"
+output: html_document
+---
+
+##Synopsis
+
+I study the specialization of data science at Coursera and what better way to apply learning doing things real.
+
+I will try subjects as:
+
+* Web scraping
+* read data 
+* tidy data 
+* transform data 
+* measures of tendency central 
+* plots and so on.
+
+I hope that this document can help to someone on the way of the data sciences.
+
+Nothing of this would possible without the contribution of all people that they have created the awesome packages for R.
+
+##American heart Association
+
+Being physically active is important to prevent heart disease and stroke, the nation's No. 1 and No. 5 killers. To improve overall cardiovascular health, we suggest at least 150 minutes per week of moderate exercise or 75 minutes per week of vigorous exercise (or a combination of moderate and vigorous activity). Thirty minutes a day, five times a week is an easy goal to remember. You will also experience benefits even if you divide your time into two or three segments of 10 to 15 minutes per day.
+
+For people who would benefit from lowering their blood pressure or cholesterol, we recommend 40 minutes of aerobic exercise of moderate to vigorous intensity three to four times a week to lower the risk for heart attack and stroke.
+
+More information in:
+
+http://www.heart.org/HEARTORG/GettingHealthy/PhysicalActivity/FitnessBasics/American-Heart-Association-Recommendations-for-Physical-Activity-in-Adults_UCM_307976_Article.jsp
+
+```{r cookie, echo=FALSE}
+library(fitbitScraper)
+cookie <- login("jreyro@gmail.com", "sistemas1617", rememberMe = TRUE)
+```
+
+##Load library for sign on and get data from Fitbit 
+```{r}
+library(fitbitScraper)
+
+# Note: add this line in other sources:
+# cookie <- login("myemail@myemail.com", "mypassword", rememberMe = TRUE)
+data <- get_daily_data(cookie, what="steps", start_date="2015-02-24",  
+                       end_date="2015-08-17")
+
+str(data)
+dim(data)
+sum(is.na(data))
+```
+
+##Processing data
+```{r}
+data$month <- as.numeric(format(data$time, "%m"))
+library(dplyr)
+group_data <- summarise(group_by(data, month), mean = mean(steps), sd = sd(steps), median = median(steps), variance = var(steps))
+
+group_data
+```
+
+##Results - plots with visualization about steps in months
+```{r}
+library(ggplot2)
+graph <- ggplot(data, aes(time, steps)) 
+graph <- graph + geom_bar(stat = "identity", colour = "Blue", width = 0.7) 
+graph <- graph + facet_grid(month ~ ., scales = "free") 
+graph <- graph + labs(title = "Histogram of Total Number of Steps Taken Each Day facet by month", x = "Dates", y = "Total number of steps")
+# override the theme 
+theme_set(theme_bw())
+graph
+
+graph <- ggplot(group_data, aes(x=month, y=mean))
+graph <- graph + geom_line(colour = "Blue")
+graph <- graph + labs(title = "Mean vs month", x = "Months", y = "Mean")
+graph
+
+graph <- ggplot(data, aes(x=factor(month), y=steps))
+graph <- graph + geom_boxplot(colour = "Blue")
+graph <- graph + labs(title = "Whisker and box", x = "Months", y = "Steps")
+graph
+```
